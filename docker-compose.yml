@@ -1,0 +1,72 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgres://user:pass@db:5432/jobqueue
+    depends_on:
+      - db
+      - redis
+    command: gunicorn -w 4 -b 0.0.0.0:8000 wsgi:application
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - DJANGO_SETTINGS_MODULE=settings
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgres://user:pass@db:5432/jobqueue
+      - WORKER_ID=${WORKER_ID:-default}
+    depends_on:
+      - db
+      - redis
+      - api
+    deploy:
+      replicas: 3  # Scale horizontally
+      restart_policy:
+        condition: on-failure
+    command: python worker.py
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    command: python scheduler.py  # Dedicated service for cron-like jobs
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=jobqueue
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api:8000/api/v1
+
+volumes:
+  redis_data:
+  postgres_data:

@@ -1,0 +1,54 @@
+services:
+  api:
+    build: .
+    command: gunicorn -w 4 -b 0.0.0.0:8000 config.wsgi:application
+    environment:
+      - DEBUG=False
+      - DATABASE_URL=postgres://prod-user:${DB_PASSWORD}@postgres:5432/jobqueue
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: python worker/worker.py
+    deploy:
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+    environment:
+      - WORKER_POLL_INTERVAL=0.5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/var/www/static:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
