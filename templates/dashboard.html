@@ -329,7 +329,7 @@
 
         function startAutoRefresh() {
             if (autoRefresh) {
-                refreshInterval = setInterval(loadData, 3000);
+                refreshInterval = setInterval(loadData, 15000); // less agressive refresh every 15s
             }
         }
 
@@ -648,13 +648,13 @@
         }
 
         function updateCharts(stats) {
-            if (charts.distribution) {
-                charts.distribution.data.datasets[0].data = [
-                    stats.redis.queued,
-                    stats.redis.processing,
-                    stats.db.completed_24h,
-                    stats.db.failed_24h
-                ];
+            if (!charts.distribution) return;
+            const newData = [stats.redis.queued, stats.redis.processing,
+                            stats.db.completed_24h, stats.db.failed_24h];
+            const oldData = charts.distribution.data.datasets[0].data;
+            const changed = newData.some((v, i) => v !== oldData[i]);
+            if (changed) {
+                charts.distribution.data.datasets[0].data = newData;
                 charts.distribution.update();
             }
         }
