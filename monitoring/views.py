@@ -1,4 +1,4 @@
-# monitoring/views.py
+from django.db import models
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.http import JsonResponse

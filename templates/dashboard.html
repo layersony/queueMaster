@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -32,19 +31,10 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .pulse-dot {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -52,6 +42,7 @@
     </style>
 </head>
 <body class="bg-dark-900 text-gray-100 min-h-screen">
+
     <!-- Navigation -->
     <nav class="border-b border-gray-800 bg-dark-800/50 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,14 +55,13 @@
                         QueueMaster
                     </span>
                 </div>
-                
+
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleAutoRefresh()" id="refresh-btn" 
+                    <button onclick="toggleAutoRefresh()" id="refresh-btn"
                             class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-sm border border-green-500/30 hover:bg-green-500/30 transition">
-                        <i class="fas fa-sync-alt spin-slow"></i>
+                        <i class="fas fa-sync-alt"></i>
                         <span>Live</span>
                     </button>
-                    
                     <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-sun" id="theme-icon"></i>
                     </button>
@@ -83,7 +73,6 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Queued Card -->
             <div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:border-blue-500/50 transition">
                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                     <i class="fas fa-inbox text-6xl text-blue-400"></i>
@@ -96,7 +85,6 @@
                 <div class="mt-2 text-sm text-gray-400">Waiting for processing</div>
             </div>
 
-            <!-- Processing Card -->
             <div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:border-yellow-500/50 transition">
                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                     <i class="fas fa-cog text-6xl text-yellow-400"></i>
@@ -109,7 +97,6 @@
                 <div class="mt-2 text-sm text-gray-400">Active jobs</div>
             </div>
 
-            <!-- Completed Card -->
             <div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:border-green-500/50 transition">
                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                     <i class="fas fa-check-circle text-6xl text-green-400"></i>
@@ -122,7 +109,6 @@
                 <div class="mt-2 text-sm text-gray-400">Successfully processed</div>
             </div>
 
-            <!-- Failed Card -->
             <div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:border-red-500/50 transition">
                 <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                     <i class="fas fa-exclamation-triangle text-6xl text-red-400"></i>
@@ -142,7 +128,7 @@
                 <!-- Filters -->
                 <div class="glass-panel rounded-xl p-4 flex flex-wrap gap-4 items-center justify-between">
                     <div class="flex gap-3">
-                        <select id="filter-status" onchange="loadJobs()" 
+                        <select id="filter-status" onchange="onFilterChange()"
                                 class="bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
@@ -151,8 +137,8 @@
                             <option value="failed">Failed</option>
                             <option value="dead_letter">Dead Letter</option>
                         </select>
-                        
-                        <select id="filter-priority" onchange="loadJobs()"
+
+                        <select id="filter-priority" onchange="onFilterChange()"
                                 class="bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
                             <option value="">All Priorities</option>
                             <option value="1">Critical</option>
@@ -161,12 +147,12 @@
                             <option value="4">Low</option>
                         </select>
                     </div>
-                    
+
                     <div class="flex gap-2">
-                        <input type="text" id="search-job" placeholder="Search job ID..." 
+                        <input type="text" id="search-job" placeholder="Search job ID..."
                                class="bg-dark-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:outline-none w-48">
                         <button onclick="refreshData()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition">
-                            <i class="fas fa-refresh"></i>
+                            <i class="fas fa-refresh" id="manual-refresh-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -186,13 +172,10 @@
                                     <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="jobs-table-body" class="divide-y divide-gray-800">
-                                <!-- Populated by JS -->
-                            </tbody>
+                            <tbody id="jobs-table-body" class="divide-y divide-gray-800"></tbody>
                         </table>
                     </div>
-                    
-                    <!-- Pagination -->
+
                     <div class="px-6 py-4 border-t border-gray-800 flex items-center justify-between">
                         <span class="text-sm text-gray-400" id="pagination-info">Showing 0-0 of 0</span>
                         <div class="flex gap-2">
@@ -209,26 +192,21 @@
                 </div>
             </div>
 
-            <!-- Sidebar: Workers & Charts -->
+            <!-- Sidebar -->
             <div class="space-y-6">
-                <!-- Workers Status -->
                 <div class="glass-panel rounded-xl p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold">Active Workers</h3>
                         <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full" id="worker-count">0 online</span>
                     </div>
-                    <div id="workers-list" class="space-y-3">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div id="workers-list" class="space-y-3"></div>
                 </div>
 
-                <!-- Throughput Chart -->
                 <div class="glass-panel rounded-xl p-6">
                     <h3 class="text-lg font-semibold mb-4">Throughput (Last Hour)</h3>
                     <canvas id="throughputChart" height="200"></canvas>
                 </div>
 
-                <!-- Queue Distribution -->
                 <div class="glass-panel rounded-xl p-6">
                     <h3 class="text-lg font-semibold mb-4">Queue Distribution</h3>
                     <canvas id="distributionChart" height="200"></canvas>
@@ -249,7 +227,7 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            
+
             <div class="p-6 overflow-y-auto flex-1">
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-dark-800/50 rounded-lg p-3">
@@ -285,7 +263,7 @@
 
             <div class="p-6 border-t border-gray-800 flex gap-3 justify-end">
                 <button onclick="closeModal()" class="px-4 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition">Close</button>
-                <button id="modal-retry-btn" onclick="retryJobFromModal()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition hidden">
+                <button id="modal-retry-btn" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition hidden">
                     <i class="fas fa-redo mr-2"></i>Retry Job
                 </button>
             </div>
@@ -308,98 +286,114 @@
     </div>
 
     <script>
-        // State management
+        // State
         let currentPage = 1;
-        let autoRefresh = true;
-        let refreshInterval;
+        let autoRefresh = false;
+        let statsInterval = null;
+        let jobsInterval = null;
         let charts = {};
 
-        // Initialize
+        const STATS_INTERVAL_MS = 15000; // 15s lightweight, just counters
+        const JOBS_INTERVAL_MS  = 30000; // 30s heavier, full table render
+
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
-            loadData();
+            // initCharts();
+            loadData();        // full load on first paint
             startAutoRefresh();
-            
-            // Check system theme preference
+
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
                 document.documentElement.classList.remove('dark');
                 document.getElementById('theme-icon').classList.replace('fa-sun', 'fa-moon');
             }
         });
 
+        // Auto-refresh 
         function startAutoRefresh() {
-            if (autoRefresh) {
-                refreshInterval = setInterval(loadData, 15000); // less agressive refresh every 15s
-            }
+            stopAutoRefresh(); // clear any existing timers first
+            statsInterval = setInterval(loadStats, STATS_INTERVAL_MS);
+            jobsInterval  = setInterval(loadJobs,  JOBS_INTERVAL_MS);
+        }
+
+        function stopAutoRefresh() {
+            clearInterval(statsInterval);
+            clearInterval(jobsInterval);
+            statsInterval = null;
+            jobsInterval  = null;
         }
 
         function toggleAutoRefresh() {
             autoRefresh = !autoRefresh;
             const btn = document.getElementById('refresh-btn');
+
             if (autoRefresh) {
                 startAutoRefresh();
-                btn.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                btn.classList.remove('bg-gray-700', 'text-gray-400');
-                btn.innerHTML = '<i class="fas fa-sync-alt spin-slow"></i><span>Live</span>';
+                btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 text-sm border border-green-500/30 hover:bg-green-500/30 transition';
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i><span>Live</span>';
             } else {
-                clearInterval(refreshInterval);
-                btn.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                btn.classList.add('bg-gray-700', 'text-gray-400');
+                stopAutoRefresh();
+                btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700 text-gray-400 text-sm border border-gray-600 hover:bg-gray-600 transition';
                 btn.innerHTML = '<i class="fas fa-pause"></i><span>Paused</span>';
             }
         }
 
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                icon.classList.replace('fa-sun', 'fa-moon');
-            } else {
-                html.classList.add('dark');
-                icon.classList.replace('fa-moon', 'fa-sun');
-            }
-        }
+        // Data loading 
 
+        // Called on: initial load, manual refresh button
         async function loadData() {
+            await Promise.all([loadStats(), loadJobs()]);
+        }
+
+        // Fetch only stats (counters + workers + charts) cheap
+        async function loadStats() {
             try {
-                const [statsRes, jobsRes] = await Promise.all([
-                    fetch('/monitoring/api/stats/'),
-                    fetch(`/monitoring/api/jobs/?page=${currentPage}&status=${document.getElementById('filter-status').value}&priority=${document.getElementById('filter-priority').value}`)
-                ]);
-                
-                const stats = await statsRes.json();
-                const jobs = await jobsRes.json();
-                
-                updateStats(stats);
-                updateWorkers(stats.workers);
-                updateJobsTable(jobs);
-                updateCharts(stats);
-            } catch (error) {
-                console.error('Failed to load data:', error);
+                const res  = await fetch('/api/stats/');
+                const data = await res.json();
+                updateStats(data);
+                updateWorkers(data.workers);
+                updateCharts(data);
+            } catch (err) {
+                console.error('Failed to load stats:', err);
             }
         }
 
-        function refreshData() {
-            loadData();
-            // Visual feedback
-            const btn = document.querySelector('button[onclick="refreshData()"] i');
-            btn.classList.add('fa-spin');
-            setTimeout(() => btn.classList.remove('fa-spin'), 1000);
+        // Fetch only the jobs table more expensive
+        async function loadJobs() {
+            try {
+                const status   = document.getElementById('filter-status').value;
+                const priority = document.getElementById('filter-priority').value;
+                const res  = await fetch(`/api/jobs/?page=${currentPage}&status=${status}&priority=${priority}`);
+                const data = await res.json();
+                updateJobsTable(data);
+            } catch (err) {
+                console.error('Failed to load jobs:', err);
+            }
         }
 
+        // Manual refresh button fires both immediately and gives visual feedback
+        function refreshData() {
+            const icon = document.getElementById('manual-refresh-icon');
+            icon.classList.add('fa-spin');
+            loadData().finally(() => setTimeout(() => icon.classList.remove('fa-spin'), 800));
+        }
+
+        // Filter dropdowns reset page and reload jobs only (no need to re-fetch stats)
+        function onFilterChange() {
+            currentPage = 1;
+            loadJobs();
+        }
+
+        // Render helpers
         function updateStats(data) {
-            document.getElementById('stat-queued').textContent = data.redis.queued;
+            document.getElementById('stat-queued').textContent     = data.redis.queued;
             document.getElementById('stat-processing').textContent = data.redis.processing;
-            document.getElementById('stat-completed').textContent = data.db.completed_24h;
-            document.getElementById('stat-failed').textContent = data.db.failed_24h;
+            document.getElementById('stat-completed').textContent  = data.db.completed_24h;
+            document.getElementById('stat-failed').textContent     = data.db.failed_24h;
         }
 
         function updateWorkers(workers) {
-            const container = document.getElementById('workers-list');
             document.getElementById('worker-count').textContent = `${workers.length} online`;
-            
-            container.innerHTML = workers.map(w => `
+            document.getElementById('workers-list').innerHTML = workers.map(w => `
                 <div class="flex items-center justify-between bg-dark-800/30 rounded-lg p-3 border border-gray-700">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 rounded-full ${w.status === 'active' ? 'bg-green-500 pulse-dot' : 'bg-red-500'}"></div>
@@ -414,19 +408,17 @@
         }
 
         function updateJobsTable(data) {
-            const tbody = document.getElementById('jobs-table-body');
             const statusColors = {
-                'pending': 'bg-gray-500/20 text-gray-400',
-                'queued': 'bg-blue-500/20 text-blue-400',
-                'processing': 'bg-yellow-500/20 text-yellow-400',
-                'completed': 'bg-green-500/20 text-green-400',
-                'failed': 'bg-red-500/20 text-red-400',
-                'dead_letter': 'bg-purple-500/20 text-purple-400'
+                pending:     'bg-gray-500/20 text-gray-400',
+                queued:      'bg-blue-500/20 text-blue-400',
+                processing:  'bg-yellow-500/20 text-yellow-400',
+                completed:   'bg-green-500/20 text-green-400',
+                failed:      'bg-red-500/20 text-red-400',
+                dead_letter: 'bg-purple-500/20 text-purple-400',
             };
-            
-            const priorityLabels = {1: 'Critical', 2: 'High', 3: 'Normal', 4: 'Low'};
-            
-            tbody.innerHTML = data.jobs.map(job => `
+            const priorityLabels = { 1: 'Critical', 2: 'High', 3: 'Normal', 4: 'Low' };
+
+            document.getElementById('jobs-table-body').innerHTML = data.jobs.map(job => `
                 <tr class="hover:bg-dark-800/30 transition cursor-pointer" onclick="showJobDetails('${job.id}')">
                     <td class="px-6 py-4 font-mono text-xs text-gray-400">${job.id.split('-')[0]}...</td>
                     <td class="px-6 py-4">
@@ -441,60 +433,52 @@
                     </td>
                     <td class="px-6 py-4 text-gray-300">${priorityLabels[job.priority] || job.priority}</td>
                     <td class="px-6 py-4">
-                        ${job.retry_count > 0 ? 
-                            `<span class="text-yellow-400">${job.retry_count}</span>` : 
-                            `<span class="text-gray-500">0</span>`
-                        }
+                        ${job.retry_count > 0
+                            ? `<span class="text-yellow-400">${job.retry_count}</span>`
+                            : `<span class="text-gray-500">0</span>`}
                     </td>
-                    <td class="px-6 py-4 text-xs text-gray-400">
-                        ${new Date(job.created_at).toLocaleTimeString()}
-                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${new Date(job.created_at).toLocaleTimeString()}</td>
                     <td class="px-6 py-4">
-                        ${job.status === 'failed' || job.status === 'dead_letter' ? 
-                            `<button onclick="event.stopPropagation(); retryJob('${job.id}')" 
-                                    class="text-blue-400 hover:text-blue-300 text-sm">
-                                <i class="fas fa-redo"></i> Retry
-                            </button>` : 
-                            '<span class="text-gray-600 text-sm">-</span>'
-                        }
+                        ${job.status === 'failed' || job.status === 'dead_letter'
+                            ? `<button onclick="event.stopPropagation(); retryJob('${job.id}')"
+                                       class="text-blue-400 hover:text-blue-300 text-sm">
+                                   <i class="fas fa-redo"></i> Retry
+                               </button>`
+                            : '<span class="text-gray-600 text-sm">-</span>'}
                     </td>
                 </tr>
             `).join('');
-            
-            // Update pagination
-            document.getElementById('pagination-info').textContent = 
-                `Showing ${(currentPage - 1) * 50 + 1}-${Math.min(currentPage * 50, data.total)} of ${data.total}`;
+
+            const start = (currentPage - 1) * 50 + 1;
+            const end   = Math.min(currentPage * 50, data.total);
+            document.getElementById('pagination-info').textContent = `Showing ${start}-${end} of ${data.total}`;
             document.getElementById('prev-btn').disabled = currentPage === 1;
             document.getElementById('next-btn').disabled = currentPage >= data.pages;
         }
 
+        // Pagination 
         function changePage(delta) {
             currentPage += delta;
-            loadJobs();
+            loadJobs(); // only jobs need refreshing when paging
         }
 
-        function loadJobs() {
-            currentPage = 1;
-            loadData();
-        }
-
+        // Job details modal
         async function showJobDetails(jobId) {
             try {
-                const res = await fetch(`/monitoring/api/jobs/${jobId}/`);
+                const res  = await fetch(`/api/jobs/${jobId}/`);
                 const data = await res.json();
-                const job = data.job;
-                
+                const job  = data.job;
+
                 document.getElementById('modal-job-id').textContent = job.id;
-                document.getElementById('modal-status').textContent = job.status;
+                document.getElementById('modal-status').textContent  = job.status;
                 document.getElementById('modal-status').className = `text-lg font-semibold mt-1 ${
-                    job.status === 'completed' ? 'text-green-400' : 
-                    job.status === 'failed' ? 'text-red-400' : 
+                    job.status === 'completed'  ? 'text-green-400'  :
+                    job.status === 'failed'     ? 'text-red-400'    :
                     job.status === 'processing' ? 'text-yellow-400' : 'text-blue-400'
                 }`;
-                
                 document.getElementById('modal-retries').textContent = `${job.retry_count} / ${job.max_retries}`;
                 document.getElementById('modal-payload').textContent = JSON.stringify(job.payload, null, 2);
-                
+
                 const resultSection = document.getElementById('modal-result-section');
                 if (job.result) {
                     resultSection.classList.remove('hidden');
@@ -502,7 +486,7 @@
                 } else {
                     resultSection.classList.add('hidden');
                 }
-                
+
                 const errorSection = document.getElementById('modal-error-section');
                 if (job.error_message) {
                     errorSection.classList.remove('hidden');
@@ -510,19 +494,17 @@
                 } else {
                     errorSection.classList.add('hidden');
                 }
-                
+
                 document.getElementById('modal-logs').innerHTML = data.logs.map(log => `
                     <div class="flex gap-3 text-sm border-l-2 border-gray-700 pl-3">
-                        <span class="text-gray-500 text-xs whitespace-nowrap">
-                            ${new Date(log.timestamp).toLocaleTimeString()}
-                        </span>
+                        <span class="text-gray-500 text-xs whitespace-nowrap">${new Date(log.timestamp).toLocaleTimeString()}</span>
                         <div>
                             <div class="font-medium text-gray-300">${log.action}</div>
                             <div class="text-gray-400 text-xs">${log.message}</div>
                         </div>
                     </div>
                 `).join('');
-                
+
                 const retryBtn = document.getElementById('modal-retry-btn');
                 if (job.status === 'failed' || job.status === 'dead_letter') {
                     retryBtn.classList.remove('hidden');
@@ -530,10 +512,10 @@
                 } else {
                     retryBtn.classList.add('hidden');
                 }
-                
+
                 document.getElementById('job-modal').classList.remove('hidden');
-            } catch (error) {
-                console.error('Failed to load job details:', error);
+            } catch (err) {
+                console.error('Failed to load job details:', err);
                 alert('Failed to load job details');
             }
         }
@@ -542,27 +524,28 @@
             document.getElementById('job-modal').classList.add('hidden');
         }
 
-        async function retryJob(jobId, closeModalAfter = false) {
+        // Retry
+        async function retryJob(jobId, closeAfter = false) {
             try {
-                const res = await fetch(`/api/v1/jobs/${jobId}/retry/`, {method: 'POST'});
+                const res = await fetch(`/api/v1/jobs/${jobId}/retry/`, { method: 'POST' });
                 if (res.ok) {
-                    if (closeModalAfter) closeModal();
+                    if (closeAfter) closeModal();
                     refreshData();
                 } else {
                     alert('Failed to retry job');
                 }
-            } catch (error) {
-                console.error('Retry failed:', error);
+            } catch (err) {
+                console.error('Retry failed:', err);
             }
         }
 
+        // DLQ modal
         async function showDLQ() {
             try {
-                const res = await fetch('/monitoring/api/dlq/');
+                const res  = await fetch('/api/dlq/');
                 const data = await res.json();
-                
-                const container = document.getElementById('dlq-list');
-                container.innerHTML = data.jobs.map(item => `
+
+                document.getElementById('dlq-list').innerHTML = data.jobs.map(item => `
                     <div class="bg-dark-800/50 rounded-lg p-4 border border-red-500/30">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-mono text-sm text-gray-400">${item.job_id}</span>
@@ -570,16 +553,16 @@
                         </div>
                         <div class="text-sm text-red-200 mb-2">${item.error.error}</div>
                         <div class="text-xs text-gray-500 mb-3">Failed at: ${new Date(item.timestamp).toLocaleString()}</div>
-                        <button onclick="retryJob('${item.job_id}'); closeDLQ();" 
+                        <button onclick="retryJob('${item.job_id}'); closeDLQ();"
                                 class="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded transition">
                             Retry Now
                         </button>
                     </div>
                 `).join('');
-                
+
                 document.getElementById('dlq-modal').classList.remove('hidden');
-            } catch (error) {
-                console.error('Failed to load DLQ:', error);
+            } catch (err) {
+                console.error('Failed to load DLQ:', err);
             }
         }
 
@@ -587,41 +570,33 @@
             document.getElementById('dlq-modal').classList.add('hidden');
         }
 
+        // Charts
         function initCharts() {
-            // Throughput chart (placeholder - would need historical endpoint)
             const ctx1 = document.getElementById('throughputChart').getContext('2d');
             charts.throughput = new Chart(ctx1, {
                 type: 'line',
                 data: {
-                    labels: Array(12).fill('').map((_, i) => `${i * 5}m`),
+                    labels: Array.from({ length: 12 }, (_, i) => `${i * 5}m`),
                     datasets: [{
                         label: 'Processed',
-                        data: Array(12).fill(0).map(() => Math.floor(Math.random() * 50) + 20),
+                        data: Array(12).fill(0),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         fill: true,
-                        tension: 0.4
-                    }]
+                        tension: 0.4,
+                    }],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#9ca3af' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#9ca3af' }
-                        }
-                    }
-                }
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+                    },
+                },
             });
 
-            // Distribution chart
             const ctx2 = document.getElementById('distributionChart').getContext('2d');
             charts.distribution = new Chart(ctx2, {
                 type: 'doughnut',
@@ -630,41 +605,58 @@
                     datasets: [{
                         data: [0, 0, 0, 0],
                         backgroundColor: ['#3b82f6', '#eab308', '#22c55e', '#ef4444'],
-                        borderWidth: 0
-                    }]
+                        borderWidth: 0,
+                    }],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            position: 'bottom',
-                            labels: { color: '#9ca3af', usePointStyle: true }
-                        }
+                        legend: { position: 'bottom', labels: { color: '#9ca3af', usePointStyle: true } },
                     },
-                    cutout: '70%'
-                }
+                    cutout: '70%',
+                },
             });
         }
 
+        // Only update chart if data actually changed avoids needless redraws
         function updateCharts(stats) {
             if (!charts.distribution) return;
-            const newData = [stats.redis.queued, stats.redis.processing,
-                            stats.db.completed_24h, stats.db.failed_24h];
+
+            const newData = [
+                stats.redis.queued,
+                stats.redis.processing,
+                stats.db.completed_24h,
+                stats.db.failed_24h,
+            ];
             const oldData = charts.distribution.data.datasets[0].data;
             const changed = newData.some((v, i) => v !== oldData[i]);
+
             if (changed) {
                 charts.distribution.data.datasets[0].data = newData;
                 charts.distribution.update();
             }
         }
 
-        // Close modals on outside click
-        window.onclick = function(event) {
-            if (event.target.classList.contains('fixed')) {
-                event.target.classList.add('hidden');
+        // Theme
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                html.classList.add('dark');
+                icon.classList.replace('fa-moon', 'fa-sun');
             }
         }
+
+        // Close modals on backdrop click
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('fixed')) {
+                e.target.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
